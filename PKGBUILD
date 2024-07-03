@@ -2,8 +2,8 @@
 
 pkgname=positron-ide-devel-bin
 _pkgname=positron-ide
-pkgver=2024.06.1.27
-pkgver_url=2024.06.1-27
+pkgver=2024.06.1.52
+pkgver_url=2024.06.1-52
 pkgrel=1
 pkgdesc="A next-generation data science IDE. Positron is an extensible, polyglot tool for writing code and exploring data in Python, R, and other languages."
 arch=('x86_64')
@@ -47,16 +47,16 @@ optdepends=(
 )
 provides=("positron-positron")
 conflicts=("positron-positron")
-sha256sums_x86_64=('b6763c4ba8706899979aedf1d20af450e66b5e4dfa0967f559b9237d793cd0c9')
+sha256sums_x86_64=('797f70cc5119fc772d7d4bd7a6ede2f89bbfa635700192e10016f667d6848404')
 source_x86_64=("${url}/releases/download/${pkgver_url}/Positron-${pkgver_url}.deb")
 
 package(){
+    set -x
     shopt -s extglob
 
     msg "Converting .deb package"
     ar x Positron-${pkgver_url}.deb
 
-    echo "${srcdir}"
     cd "${srcdir}"
     tar --zstd -xf data.tar.zst -C "${pkgdir}"
 
@@ -65,16 +65,4 @@ package(){
     install -d "${pkgdir}/usr/share/applications"
     install -d "${pkgdir}/usr/share/mime/packages"
     install -d "${pkgdir}/usr/share/positron"
-
-    # cp -r "${srcdir}/${_pkgname}/usr/share/positron" "${pkgdir}/usr/share/"
-    
-    # mime
-    # install -m644 "${srcdir}/${_pkgname}/resources/linux/positron.png" "{pkgdir}/usr/share/pixmaps/com.visualstudio.code.oss.png"
-
-    # workspace
-    # install -m644 "${srcdir}/${_pkgname}-workspace.xml" "${pkgdir}/usr/share/mime/packages/positron-workspace.xml"
-
-    # completions
-    # install -Dm644 "${srcdir}/${_pkgname}/resources/completions/bash/positron" "${pkgdir}/usr/share/bash-completion/completions/positron"
-    # install -Dm644 "${srcdir}/${_pkgname}/resources/completions/zsh/_positron" "${pkgdir}/usr/share/zsh/site-functions/_positron"
 }

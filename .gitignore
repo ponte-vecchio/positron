@@ -1,0 +1,4 @@
+*.deb
+positron-ide-*
+src
+pkg
