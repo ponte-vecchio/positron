@@ -1,6 +1,6 @@
 pkgbase = positron-ide-devel-bin
 	pkgdesc = A next-generation data science IDE. Positron is an extensible, polyglot tool for writing code and exploring data in Python, R, and other languages.
-	pkgver = 2024.07.0.17
+	pkgver = 2024.07.0.21
 	pkgrel = 1
 	url = https://github.com/posit-dev/positron
 	arch = x86_64
@@ -24,7 +24,8 @@ pkgbase = positron-ide-devel-bin
 	optdepends = vulkan-icd-loader: Vulkan ICD loader
 	provides = positron-positron
 	conflicts = positron-positron
-	source_x86_64 = https://github.com/posit-dev/positron/releases/download/2024.07.0-17/Positron-2024.07.0-17.deb
-	sha256sums_x86_64 = f5f1e6074965c63d07ee04913f521eb5e9ceedc67a6a8f9f8872f4e8962114f5
+	options = !debug
+	source_x86_64 = https://github.com/posit-dev/positron/releases/download/2024.07.0-21/Positron-2024.07.0-21.deb
+	sha256sums_x86_64 = a766ae3e743f1057c213bbdd8139317729589b8a4e959d198a19f5f5355a7e18
 
 pkgname = positron-ide-devel-bin
