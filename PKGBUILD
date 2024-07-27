@@ -2,8 +2,8 @@
 
 pkgname=positron-ide-devel-bin
 _pkgname=positron-ide
-pkgver=2024.07.0.85
-pkgver_url=2024.07.0-85
+pkgver=2024.07.0.100
+pkgver_url=2024.07.0-100
 pkgrel=1
 pkgdesc="A next-generation data science IDE. Positron is an extensible, polyglot tool for writing code and exploring data in Python, R, and other languages."
 arch=('x86_64')
@@ -46,9 +46,9 @@ optdepends=(
     'vulkan-radeon: Radeon Vulkan driver'
     'vulkan-icd-loader: Vulkan ICD loader'
 )
-provides=("positron-positron")
-conflicts=("positron-positron")
-sha256sums_x86_64=('c03ef1e43383a9ffb1ca9ee688247b4da251cac84ee9dd4a54af174598c80a7a')
+provides=("positron")
+conflicts=("positron-bin")
+sha256sums_x86_64=('21e038c2944627ca13eb9fdf777eb740e0dc274f05c4c6489bee2b2978ea8c0e')
 source_x86_64=("${url}/releases/download/${pkgver_url}/Positron-${pkgver_url}.deb")
 
 package(){
@@ -59,6 +59,10 @@ package(){
 
     cd "${srcdir}"
     tar --zstd -xf data.tar.zst -C "${pkgdir}"
+
+    # copy licence from root directory
+    msg "Copying licence"
+    install -Dm644 "../LICENCE" "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
 
     msg "Installing"
     install -d "${pkgdir}/usr/share/appdata"
