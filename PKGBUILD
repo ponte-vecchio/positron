@@ -2,8 +2,8 @@
 
 pkgname=positron-ide-devel-bin
 _pkgname=positron-ide
-pkgver=2024.08.0.5
-pkgver_url=2024.08.0-5
+pkgver=2024.08.0.24
+pkgver_url=2024.08.0-24
 pkgrel=1
 pkgdesc="A next-generation data science IDE. Positron is an extensible, polyglot tool for writing code and exploring data in Python, R, and other languages."
 arch=('x86_64')
@@ -48,7 +48,7 @@ optdepends=(
 )
 provides=("positron")
 conflicts=("positron-bin")
-sha256sums_x86_64=('4767f2cef0ecc15e60763415384235ea14dbf5df82b5c469cbbaa405cc13f5ef')
+sha256sums_x86_64=('79b20460faabcf2f56ec11af1d50263ab1e2a1da621ca77b3135cd40ebb278f3')
 source_x86_64=("${url}/releases/download/${pkgver_url}/Positron-${pkgver_url}.deb")
 
 package(){
