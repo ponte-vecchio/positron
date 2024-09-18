@@ -4,7 +4,7 @@ pkgname=positron-ide-devel-bin
 _pkgname=positron-ide
 pkgver=2024.09.0.45
 pkgver_url=2024.09.0-45
-pkgrel=1
+pkgrel=2
 pkgdesc="A next-generation data science IDE. Positron is an extensible, polyglot tool for writing code and exploring data in Python, R, and other languages."
 arch=('x86_64')
 options=('!debug')
@@ -59,7 +59,7 @@ package(){
     ar x Positron-${pkgver_url}.deb
 
     cd "${srcdir}"
-    tar --zstd -xf data.tar.zst -C "${pkgdir}"
+    tar --zstd -xf data.tar.xz -C "${pkgdir}"
 
     # copy licence from root directory
     # msg "Copying licence"

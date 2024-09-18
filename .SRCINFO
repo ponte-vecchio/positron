@@ -1,9 +1,10 @@
 pkgbase = positron-ide-devel-bin
 	pkgdesc = A next-generation data science IDE. Positron is an extensible, polyglot tool for writing code and exploring data in Python, R, and other languages.
 	pkgver = 2024.09.0.45
-	pkgrel = 1
+	pkgrel = 2
 	url = https://github.com/posit-dev/positron
 	arch = x86_64
+	license = Elastic-2.0
 	depends = ca-certificates
 	depends = alsa-lib
 	depends = at-spi2-core
