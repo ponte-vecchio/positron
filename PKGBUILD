@@ -2,14 +2,15 @@
 
 pkgname=positron-ide-devel-bin
 _pkgname=positron-ide
-pkgver=2024.09.0.1
-pkgver_url=2024.09.0-1
+pkgver=2024.09.0.45
+pkgver_url=2024.09.0-45
 pkgrel=1
 pkgdesc="A next-generation data science IDE. Positron is an extensible, polyglot tool for writing code and exploring data in Python, R, and other languages."
 arch=('x86_64')
 options=('!debug')
 url="https://github.com/posit-dev/positron"
-licence=('custom: Elastic License 2.0')
+licence=('Elastic-2.0')
+license=('Elastic-2.0')
 depends=(
     'ca-certificates'
     'alsa-lib'
@@ -48,7 +49,7 @@ optdepends=(
 )
 provides=("positron")
 conflicts=("positron-bin")
-sha256sums_x86_64=('4665773729eec5437da11bd06175ee374b7193c2cfb770fde1b2f31b2e8e2dd4')
+sha256sums_x86_64=('636c7f7ef2c15a3605c7ebfd2d876903e4fe60b8ecfabcc41aa9b7cb1c99bf84')
 source_x86_64=("${url}/releases/download/${pkgver_url}/Positron-${pkgver_url}.deb")
 
 package(){
@@ -61,8 +62,8 @@ package(){
     tar --zstd -xf data.tar.zst -C "${pkgdir}"
 
     # copy licence from root directory
-    msg "Copying licence"
-    install -Dm644 "../LICENCE" "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+    # msg "Copying licence"
+    # install -Dm644 "../LICENCE" "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
 
     msg "Installing"
     install -d "${pkgdir}/usr/share/appdata"
