@@ -2,8 +2,8 @@
 
 pkgname=positron-ide-devel-bin
 _pkgname=positron-ide
-pkgver=2025.01.0.159
-pkgver_url=2025.01.0-159
+pkgver=2025.02.0.79
+pkgver_url=2025.02.0-79
 pkgrel=1
 pkgdesc="A next-generation data science IDE. Positron is an extensible, polyglot tool for writing code and exploring data in Python, R, and other languages."
 arch=('x86_64')
@@ -46,17 +46,19 @@ optdepends=(
     'vulkan-intel: Intel Vulkan driver'
     'vulkan-radeon: Radeon Vulkan driver'
     'vulkan-icd-loader: Vulkan ICD loader'
+    'bash-completion: Bash completion support'
+    'zsh-completions: Zsh completion support'
 )
 provides=("positron")
 conflicts=("positron-bin")
-sha256sums_x86_64=('627d3b6449357ea33aa44db7013e4f7a9ad32b530eeaebdb9b19da733b6c635e')
-source_x86_64=("${url}/releases/download/${pkgver_url}/Positron-${pkgver_url}.deb")
+sha256sums_x86_64=('5c9e68b4376a3062a2b4297aa121024fc6a5e9913f30406bb7f104db04bf0328')
+source_x86_64=("${url}/releases/download/${pkgver_url}/Positron-${pkgver_url}-x64.deb")
 
 package(){
     shopt -s extglob
 
     msg "Converting .deb package"
-    ar x Positron-${pkgver_url}.deb
+    ar x Positron-${pkgver_url}-x64.deb
 
     cd "${srcdir}"
     tar --zstd -xf data.tar.xz -C "${pkgdir}"
