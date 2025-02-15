@@ -2,8 +2,8 @@
 
 pkgname=positron-ide-devel-bin
 _pkgname=positron-ide
-pkgver=2025.02.0.137
-pkgver_url=2025.02.0-137
+pkgver=2025.02.0.171
+pkgver_url=2025.02.0-171
 pkgrel=1
 pkgdesc="A next-generation data science IDE. Positron is an extensible, polyglot tool for writing code and exploring data in Python, R, and other languages."
 arch=('x86_64' 'aarch64')
@@ -51,21 +51,18 @@ optdepends=(
 )
 provides=("positron")
 conflicts=("positron-bin")
-_arch=$(uname -m)
 source_x86_64=("${url}/releases/download/${pkgver_url}/Positron-${pkgver_url}-x64.deb")
 source_aarch64=("${url}/releases/download/${pkgver_url}/Positron-${pkgver_url}-arm64.deb")
-sha256sums_x86_64=('438743c787379cd8e864fb68224540962b064a1aadcf8a48297561fb97e781a2')
-sha256sums_aarch64=('438743c787379cd8e864fb68224540962b064a1aadcf8a48297561fb97e781a2')
+sha256sums_x86_64=('4e341cfd8e126b63252ec95bca061515b224deb680accbd8b2d4a24846337e8d')
+sha256sums_aarch64=('5a06c4cc8f72e9c17d8a3bb5bf76485ed5a71f65fea4793d349148bf58570cb7')
 
 package(){
     shopt -s extglob
 
     msg "Converting .deb package"
     if [ "${CARCH}" = "x86_64" ]; then
-        echo "Positron-${pkgver}-x64"
         ar x Positron-${pkgver_url}-x64.deb
     elif [ "${CARCH}" = "aarch64" ]; then
-        echo "Positron-${pkgver}-arm64"
         ar x Positron-${pkgver_url}-arm64.deb
     fi
 
