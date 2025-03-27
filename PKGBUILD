@@ -2,9 +2,9 @@
 
 pkgname=positron-ide-devel-bin
 _pkgname=positron-ide
-pkgver=2025.04.0.109
-pkgver_url=2025.04.0-109
-pkgrel=2
+pkgver=2025.04.0.173
+pkgver_url=2025.04.0-173
+pkgrel=1
 pkgdesc="A next-generation data science IDE. Positron is an extensible, polyglot tool for writing code and exploring data in Python, R, and other languages."
 arch=('x86_64' 'aarch64')
 options=('!debug')
@@ -26,6 +26,7 @@ depends=(
     'mesa'
     # 'glib2' # pango
     'krb5'
+    'gtk3'
     'gtk4'
     # 'nspr' # nss
     'nss' 
@@ -37,25 +38,81 @@ depends=(
     'libxdamage'
     # 'libxext' # mesa
     # 'libxfixes' # mesa
-    # 'libxkbcommon' # at-spi2-core
+    'libxkbcommon'
     # 'libxkbfile' # mesa
     'libxrandr'
     'xdg-utils'
+    # python modules
+    'ipython'
+    'jupyter-nbclient'
+    'jupyter-nbformat'
+    'python-argcomplete'
+    'python-asttokens'
+    'python-cffi'
+    'python-chardet'
+    'python-colorama'
+    'python-comm'
+    'python-dateutil'
+    'python-decorator'
+    'python-docutils'
+    'python-executing'
+    'python-gobject'
+    'python-greenlet'
+    'python-importlib-metadata'
+    'python-ipykernel'
+    'python-jupyter-client'
+    'python-jupyter-core'
+    'python-markdown-it-py'
+    'python-matplotlib-inline'
+    'python-msgpack'
+    'python-nest-asyncio'
+    'python-numpy'
+    'python-parso'
+    'python-pexpect'
+    'python-pickleshare'
+    'python-pillow'
+    'python-pip'
+    'python-platformdirs'
+    'python-pluggy'
+    'python-prompt_toolkit'
+    'python-psutil'
+    'python-ptyprocess'
+    'python-pure-eval'
+    'python-pygments'
+    'python-pyparsing'
+    'python-pyqt5'
+    'python-pytest'
+    'python-pytz'
+    'python-pyzmq'
+    'python-requests'
+    'python-six'
+    'python-sphinx'
+    'python-stack-data'
+    'python-tomlkit'
+    'python-tornado'
+    'python-traitlets'
+    'python-twisted'
+    'python-typing_extensions'
+    'python-wcwidth'
+    'python-websockets'
+    'python-wheel'
+    'python-yaml'
+    'python-zipp'
 )
 optdepends=(
-    # libvullkan1
     'vulkan-intel: Intel Vulkan driver'
     'vulkan-radeon: Radeon Vulkan driver'
     'vulkan-icd-loader: Vulkan ICD loader'
     'bash-completion: Bash completion support'
     'zsh-completions: Zsh completion support'
+    'nodejs: Extra functionality for Positron'
 )
 provides=("positron")
 conflicts=("positron-bin")
 source_x86_64=("${posit_url}/x86_64/Positron-${pkgver_url}-x64.deb")
 source_aarch64=("${posit_url}/arm64/Positron-${pkgver_url}-arm64.deb")
-sha256sums_x86_64=('399b47f3c2ab9b7c781b0fe25d7b9dea4c7b39fc073a60f57918ada6023e5c13')
-sha256sums_aarch64=('a9dad1aff4c69e490a3e552481dbd7ae7019afe9eaa9d18074933804fb69091cc')
+sha256sums_x86_64=('6a9f54719fbe70ba1c7b1ebbbfcb517f9e8085109b246fe3746208a0bc6263f7')
+sha256sums_aarch64=('34c95b449194bb53571f420e81eab0340cd21795e53b8009d1df62abf2d1fa14')
 
 package(){
     shopt -s extglob
