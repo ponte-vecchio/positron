@@ -2,14 +2,14 @@
 
 pkgname=positron-ide-devel-bin
 _pkgname=positron-ide
-pkgver=2025.08.0.130
-pkgver_url=2025.08.0-130
+pkgver=2025.10.0.199
+pkgver_url=2025.10.0-199
 pkgrel=1
 pkgdesc="A next-generation data science IDE. Positron is an extensible, polyglot tool for writing code and exploring data in Python, R, and other languages."
 arch=('x86_64' 'aarch64')
 options=('!debug')
 url="https://github.com/posit-dev/positron"
-posit_url="https://cdn.posit.co/positron/dailies/deb"
+posit_url="https://cdn.posit.co/positron/releases/deb"
 licence=('Elastic-2.0')
 license=('Elastic-2.0')
 depends=(
@@ -21,6 +21,7 @@ depends=(
     # 'cairo' # pango
     'libcups'
     'curl'
+    'dbus'
     # 'libdrm' # mesa
     # 'expat' # mesa
     'mesa'
@@ -32,6 +33,7 @@ depends=(
     'nss' 
     'pango'
     # 'gcc-libs' # mesa
+    'systemd-libs' # for udev1
     # 'libx11' # mesa, pango
     # 'libxcb' # mesa
     'libxcomposite'
@@ -111,8 +113,8 @@ provides=("positron")
 conflicts=("positron-bin")
 source_aarch64=("${posit_url}/arm64/Positron-${pkgver_url}-arm64.deb")
 source_x86_64=("${posit_url}/x86_64/Positron-${pkgver_url}-x64.deb")
-sha256sums_aarch64=('ccdb7ee3404b1d1e3c83466163c283a4f55dcdc3825bb22c977240e279418ac7')
-sha256sums_x86_64=('be310e430dfe02800703ecd1df0e7a87590ab8d32c03e58b2bac4a115bcca925')
+sha256sums_aarch64=('264805b9579bc8346a1a1d99713662b555b345261d6ad282b5758bd4631bd193')
+sha256sums_x86_64=('c9c85e38e2a2acb84388d221d8183feca0536aeed83c61961cb911999264ae79')
 
 package(){
     shopt -s extglob
