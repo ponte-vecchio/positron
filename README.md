@@ -33,12 +33,6 @@ To build and install the `positron-ide-devel-bin` package, follow these steps:
 
 This command will download the necessary files, build the package, and install it on your system.
 
-## Known Issues
-
-### GitHub Copilot
-
-GitHub Copilot may fail to authenticate on fresh installations of Positron IDE on Arch Linux. If you encounter issues, sign out of GitHub Copilot and sign back in to resolve the problem.
-
 ## License
 
 [![License: GPLv3](https://img.shields.io/badge/license-GPLv3-bd0000.svg)](https://www.gnu.org/licenses/gpl-3.0)
