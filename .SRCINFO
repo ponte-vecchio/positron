@@ -90,8 +90,8 @@ pkgbase = positron-ide-devel-bin
 	conflicts = positron-bin
 	options = !debug
 	source_x86_64 = https://cdn.posit.co/positron/releases/deb/x86_64/Positron-2026.04.0-269-x64.deb
-	sha256sums_x86_64 = dfbb96c74f407057caaec7da76ce04f35bc6d805f9ef91fb1a83f2e8079c89ff
+	sha256sums_x86_64 = a029a70d2b98acceca52fbdf4c947f0af3c419b09cc1377b78921254afd158f9
 	source_aarch64 = https://cdn.posit.co/positron/releases/deb/arm64/Positron-2026.04.0-269-arm64.deb
-	sha256sums_aarch64 = 9a2171b0a8307d792d6f4f8c1fc81f6105e8e0e7f7ebd578198fe94b76185cfa
+	sha256sums_aarch64 = 30fc3b5265ceaea90e5a9cc47618b3ce8bb5225482671513b9b08aca931eff80
 
 pkgname = positron-ide-devel-bin
