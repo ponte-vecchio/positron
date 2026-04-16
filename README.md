@@ -39,9 +39,9 @@ This command will download the necessary files, build the package, and install i
 
 GitHub Copilot may fail to authenticate on fresh installations of Positron IDE on Arch Linux. If you encounter issues, sign out of GitHub Copilot and sign back in to resolve the problem.
 
-## Licence
+## License
 
-[![Licence: GPLv3](https://img.shields.io/badge/license-GPLv3-bd0000.svg)](https://www.gnu.org/licenses/gpl-3.0)
+[![License: GPLv3](https://img.shields.io/badge/license-GPLv3-bd0000.svg)](https://www.gnu.org/licenses/gpl-3.0)
 
 ```text
 Copyright (C) 2026 Leothelion
