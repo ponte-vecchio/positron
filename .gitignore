@@ -1,4 +1,6 @@
+/.tmp/
 *.deb
+.actrc
 positron-ide-*
 src
 pkg
