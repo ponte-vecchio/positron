@@ -7,7 +7,7 @@ on:
   push:
     branches:
       - master
-      - update-version-workflow
+      - feat/update-version-workflow
 
 permissions:
   contents: write
