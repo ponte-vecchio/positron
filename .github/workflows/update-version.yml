@@ -121,7 +121,7 @@ jobs:
 
           def sha256_of_url(url):
             h = hashlib.sha256()
-            with urllib.request.urlopen(url) as response:
+            with urllib.request.urlopen(url, timeout=60) as response:
               while chunk := response.read(65536):
                 h.update(chunk)
             return h.hexdigest()
