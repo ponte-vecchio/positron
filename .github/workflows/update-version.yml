@@ -1,0 +1,313 @@
+name: Update Positron Package Version
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      GH_TOKEN: ${{ github.token }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: master
+
+      - name: Fetch latest upstream release tag
+        id: upstream
+        run: |
+          # Fetch latest upstream release tag
+
+          set -euo pipefail
+
+          TAG=$( \
+            gh api repos/posit-dev/positron/releases/latest \
+            --jq '.tag_name' \
+          )
+
+          TAG="${TAG#v}"
+
+          echo "tag=${TAG}" >> "${GITHUB_OUTPUT}"
+          echo "Upstream tag: ${TAG}"
+
+      - name: Check for existing branch or PR
+        id: check
+        run: |
+          # Check for existing branch or PR
+
+          set -euo pipefail
+
+          readonly BRANCH="release/${{ steps.upstream.outputs.tag }}"
+
+          if git ls-remote --exit-code --heads origin "${BRANCH}" \
+            >/dev/null 2>&1; then
+            echo "Branch '${BRANCH}' already exists — skipping."
+            echo "skip=true" >> "${GITHUB_OUTPUT}"
+            exit 0
+          fi
+
+          EXISTING_PR=$(
+            gh pr list \
+              --base master \
+              --state open \
+              --json number,headRefName \
+              --jq ".[] | select(.headRefName == \"${BRANCH}\")" \
+            | head -1
+          )
+
+          if [[ -n "${EXISTING_PR}" ]]; then
+            PR_NUM=$(echo "${EXISTING_PR}" | jq -r '.number')
+            echo "PR #${PR_NUM} already up to date — skipping."
+            echo "skip=true" >> "${GITHUB_OUTPUT}"
+            exit 0
+          fi
+
+          echo "skip=false" >> "${GITHUB_OUTPUT}"
+
+      - name: Compare versions and update package files
+        id: update
+        if: steps.check.outputs.skip != 'true'
+        env:
+          UPSTREAM_TAG: ${{ steps.upstream.outputs.tag }}
+        run: |
+          # Compare versions and update package files
+
+          set -euo pipefail
+
+          python3 - << 'PYEOF'
+          import hashlib
+          import os
+          import re
+          import sys
+          import urllib.error
+          import urllib.request
+
+
+          def parse_ver(v):
+            return tuple(int(x) for x in v.replace('-', '.').split('.'))
+
+
+          def set_output(key, value):
+            with open(os.environ['GITHUB_OUTPUT'], 'a') as f:
+              f.write(f'{key}={value}\n')
+
+
+          def sub(pattern, repl, text):
+            return re.sub(pattern, repl, text, flags=re.M)
+
+
+          def check_url(url):
+            # Returns False only on HTTP errors (e.g. 404 when CDN lags
+            # behind a release). Network errors propagate to fail loudly.
+            req = urllib.request.Request(url, method='HEAD')
+            try:
+              urllib.request.urlopen(req)
+              return True
+            except urllib.error.HTTPError:
+              return False
+
+
+          def sha256_of_url(url):
+            h = hashlib.sha256()
+            with urllib.request.urlopen(url, timeout=60) as response:
+              while chunk := response.read(65536):
+                h.update(chunk)
+            return h.hexdigest()
+
+
+          tag = os.environ['UPSTREAM_TAG']
+          new_pkgver = tag.replace('-', '.')
+          new_pkgver_url = tag
+
+          with open('PKGBUILD') as f:
+            pkgbuild = f.read()
+
+          match = re.search(r'^pkgver=(.+)$', pkgbuild, re.M)
+          current_pkgver = match.group(1)
+
+          if parse_ver(new_pkgver) <= parse_ver(current_pkgver):
+            print(f'Already up to date: {current_pkgver}')
+            set_output('needs_update', 'false')
+            sys.exit(0)
+
+          print(f'Update available: {current_pkgver} -> {new_pkgver}')
+
+          cdn = 'https://cdn.posit.co/positron/releases/deb'
+          x64_url = f'{cdn}/x86_64/Positron-{new_pkgver_url}-x64.deb'
+          arm64_url = f'{cdn}/arm64/Positron-{new_pkgver_url}-arm64.deb'
+
+          for url in (x64_url, arm64_url):
+            if not check_url(url):
+              print(f'CDN not ready yet — will retry next run: {url}')
+              set_output('needs_update', 'false')
+              sys.exit(0)
+
+          print('Computing SHA256 for x86_64...')
+          sha256_x64 = sha256_of_url(x64_url)
+          print(f'  {sha256_x64}')
+
+          print('Computing SHA256 for aarch64...')
+          sha256_arm64 = sha256_of_url(arm64_url)
+          print(f'  {sha256_arm64}')
+
+          pkgbuild = sub(r'^pkgver=.+$', f'pkgver={new_pkgver}', pkgbuild)
+
+          pkgbuild = sub(
+            r'^pkgver_url=.+$', f'pkgver_url={new_pkgver_url}', pkgbuild
+          )
+
+          pkgbuild = sub(
+            r"^sha256sums_x86_64=\('.+'\)$",
+            f"sha256sums_x86_64=('{sha256_x64}')",
+            pkgbuild,
+          )
+
+          pkgbuild = sub(
+            r"^sha256sums_aarch64=\('.+'\)$",
+            f"sha256sums_aarch64=('{sha256_arm64}')",
+            pkgbuild,
+          )
+
+          with open('PKGBUILD', 'w') as f:
+            f.write(pkgbuild)
+
+          with open('.SRCINFO') as f:
+            srcinfo = f.read()
+
+          srcinfo = sub(
+            r'^\tpkgver = .+$', f'\tpkgver = {new_pkgver}', srcinfo
+          )
+
+          srcinfo = sub(
+            r'^\tsource_x86_64 = .+$',
+            f'\tsource_x86_64 = {x64_url}',
+            srcinfo,
+          )
+
+          srcinfo = sub(
+            r'^\tsha256sums_x86_64 = .+$',
+            f'\tsha256sums_x86_64 = {sha256_x64}',
+            srcinfo,
+          )
+
+          srcinfo = sub(
+            r'^\tsource_aarch64 = .+$',
+            f'\tsource_aarch64 = {arm64_url}',
+            srcinfo,
+          )
+
+          srcinfo = sub(
+            r'^\tsha256sums_aarch64 = .+$',
+            f'\tsha256sums_aarch64 = {sha256_arm64}',
+            srcinfo,
+          )
+
+          with open('.SRCINFO', 'w') as f:
+            f.write(srcinfo)
+
+          set_output('needs_update', 'true')
+          set_output('new_pkgver', new_pkgver)
+          set_output('new_pkgver_url', new_pkgver_url)
+          set_output('old_pkgver', current_pkgver)
+          set_output('sha256_x64', sha256_x64)
+          set_output('sha256_arm64', sha256_arm64)
+
+          print('Files updated successfully.')
+          PYEOF
+
+      - name: Create branch, commit, push and open PR
+        if: steps.update.outputs.needs_update == 'true'
+        run: |
+          # Create branch, commit, push and open PR
+
+          set -euo pipefail
+
+          readonly NEW_PKGVER="${{ steps.update.outputs.new_pkgver }}"
+          readonly NEW_PKGVER_URL="${{ steps.update.outputs.new_pkgver_url }}"
+          readonly OLD_PKGVER="${{ steps.update.outputs.old_pkgver }}"
+          readonly SHA256_X64="${{ steps.update.outputs.sha256_x64 }}"
+          readonly SHA256_ARM64="${{ steps.update.outputs.sha256_arm64 }}"
+          readonly BRANCH="release/${NEW_PKGVER_URL}"
+
+          WORKFLOW_URL="https://github.com"
+          WORKFLOW_URL+="/${{ github.repository }}/actions/runs"
+          WORKFLOW_URL+="/${{ github.run_id }}"
+          readonly WORKFLOW_URL
+
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Look for an open PR already targeting master from any release/*
+          # branch. There should be at most one at any given time.
+          EXISTING_PR=$(
+            gh pr list \
+              --base master \
+              --state open \
+              --json number,headRefName \
+              --jq '.[] | select(.headRefName | test("^release/"))' \
+            | head -1
+          )
+
+          git add PKGBUILD .SRCINFO
+          git commit -m "bump version to ${NEW_PKGVER}"
+
+          cat > /tmp/pr_body.md << EOF
+
+          ## Summary
+
+          Automated version bump: \`${OLD_PKGVER}\` → \`${NEW_PKGVER}\`
+
+          ### Updated Files
+
+          | File | Fields |
+          |---|---|
+          | \`PKGBUILD\` | \`pkgver\`, \`pkgver_url\`, \`sha256sums_x86_64\`, \`sha256sums_aarch64\` |
+          | \`.SRCINFO\` | \`pkgver\`, \`source_x86_64\`, \`sha256sums_x86_64\`, \`source_aarch64\`, \`sha256sums_aarch64\` |
+
+          ### Checksums
+
+          | Architecture | SHA256 |
+          |---|---|
+          | \`x86_64\` | \`${SHA256_X64}\` |
+          | \`aarch64\` | \`${SHA256_ARM64}\` |
+
+          ---
+          *Automated update — [workflow run](${WORKFLOW_URL})*
+          EOF
+
+          if [[ -n "${EXISTING_PR}" ]]; then
+            readonly PR_NUMBER=$(echo "${EXISTING_PR}" | jq -r '.number')
+            readonly PR_BRANCH=$(echo "${EXISTING_PR}" | jq -r '.headRefName')
+
+            if [[ "${PR_BRANCH}" == "${BRANCH}" ]]; then
+              echo "PR #${PR_NUMBER} already up to date — skipping."
+              exit 0
+            fi
+
+            # Outdated PR: force-push updated content and refresh metadata.
+            echo "Updating PR #${PR_NUMBER} (${PR_BRANCH} -> ${BRANCH}) ..."
+            git push --force origin "HEAD:${PR_BRANCH}"
+            gh pr edit "${PR_NUMBER}" \
+              --title "Bump Positron to ${NEW_PKGVER_URL}" \
+              --body-file /tmp/pr_body.md
+          else
+            git checkout -b "${BRANCH}"
+            git push origin "${BRANCH}"
+            gh pr create \
+              --title "Bump Positron to ${NEW_PKGVER_URL}" \
+              --base master \
+              --head "${BRANCH}" \
+              --body-file /tmp/pr_body.md
+          fi
