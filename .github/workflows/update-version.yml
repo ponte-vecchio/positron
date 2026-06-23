@@ -3,11 +3,10 @@ name: Update Positron Package Version
 on:
   schedule:
     - cron: '0 */6 * * *'
-  workflow_dispatch:
   push:
     branches:
       - master
-      - feat/update-version-workflow
+  workflow_dispatch:
 
 permissions:
   contents: write
