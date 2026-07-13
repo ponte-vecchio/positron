@@ -3,12 +3,7 @@ name: Bump PKGBUILD on new Positron release
 on:
   schedule:
     - cron: '0 3 */1 * *'
-  workflow_dispatch:
-    inputs:
-      base_branch:
-        description: 'Branch to check/bump. Use a non-master test branch to dry-run without touching the real master or AUR.'
-        type: string
-        default: master
+  workflow_dispatch: {}
 
 permissions:
   contents: write
@@ -18,6 +13,9 @@ concurrency:
   group: bump-pkgbuild
   cancel-in-progress: false
 
+env:
+  BASE_BRANCH: master
+
 jobs:
   check-release:
     runs-on: ubuntu-latest
@@ -25,19 +23,8 @@ jobs:
       has_update: ${{ steps.compare.outputs.has_update }}
       new_pkgver_url: ${{ steps.latest.outputs.tag }}
       new_pkgver: ${{ steps.latest.outputs.pkgver }}
-      base_branch: ${{ steps.resolve.outputs.base_branch }}
     steps:
-      - name: Resolve target branch
-        id: resolve
-        env:
-          INPUT_BASE_BRANCH: ${{ github.event.inputs.base_branch }}
-        run: |
-          set -euo pipefail
-          echo "base_branch=${INPUT_BASE_BRANCH:-master}" >> "$GITHUB_OUTPUT"
-
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ steps.resolve.outputs.base_branch }}
+      - uses: actions/checkout@v7
 
       - name: Get latest positron release tag
         id: latest
@@ -69,9 +56,7 @@ jobs:
     outputs:
       branch: ${{ steps.push.outputs.branch }}
     steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ needs.check-release.outputs.base_branch }}
+      - uses: actions/checkout@v7
 
       - name: Fetch developer-provided checksums
         id: checksums
@@ -119,13 +104,9 @@ jobs:
         id: push
         env:
           NEW_PKGVER: ${{ needs.check-release.outputs.new_pkgver }}
-          BASE_BRANCH: ${{ needs.check-release.outputs.base_branch }}
         run: |
           set -euo pipefail
           branch="bump-${NEW_PKGVER}"
-          if [ "${BASE_BRANCH}" != "master" ]; then
-            branch="${branch}-${BASE_BRANCH//\//-}"
-          fi
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git checkout -B "${branch}"
@@ -139,7 +120,7 @@ jobs:
     runs-on: ubuntu-latest
     container: archlinux:base-devel
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           ref: ${{ needs.bump-pkgbuild.outputs.branch }}
 
@@ -157,7 +138,7 @@ jobs:
     env:
       CARCH: aarch64
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           ref: ${{ needs.bump-pkgbuild.outputs.branch }}
 
@@ -175,7 +156,7 @@ jobs:
       contents: write
       pull-requests: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           ref: ${{ needs.bump-pkgbuild.outputs.branch }}
 
@@ -183,7 +164,6 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           BRANCH: ${{ needs.bump-pkgbuild.outputs.branch }}
-          BASE_BRANCH: ${{ needs.check-release.outputs.base_branch }}
           NEW_PKGVER: ${{ needs.check-release.outputs.new_pkgver }}
         run: |
           set -euo pipefail
@@ -195,18 +175,16 @@ jobs:
           gh pr merge "${BRANCH}" --squash --delete-branch --admin
 
   publish-aur:
-    needs: [check-release, finalise]
-    if: needs.check-release.outputs.base_branch == 'master'
+    needs: finalise
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
-          ref: ${{ needs.check-release.outputs.base_branch }}
+          ref: ${{ env.BASE_BRANCH }}
 
       - name: Push to AUR
         env:
           AUR_SSH_PRIVATE_KEY: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
-          BASE_BRANCH: ${{ needs.check-release.outputs.base_branch }}
         run: |
           set -euo pipefail
           mkdir -p ~/.ssh
