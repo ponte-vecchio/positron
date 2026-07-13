@@ -107,12 +107,13 @@ jobs:
       - name: Regenerate .SRCINFO
         run: |
           set -euo pipefail
-          docker run --rm -v "${PWD}:/repo" -w /repo archlinux:base-devel bash -c '
+          docker run --rm -v "${PWD}:/repo:ro" -w /repo archlinux:base-devel bash -c '
             set -euo pipefail
             useradd -m builder
-            chown -R builder:builder /repo
-            su builder -c "makepkg --printsrcinfo" > /repo/.SRCINFO
-          '
+            cp /repo/PKGBUILD /home/builder/PKGBUILD
+            chown builder:builder /home/builder/PKGBUILD
+            cd /home/builder && su builder -c "makepkg --printsrcinfo"
+          ' > .SRCINFO
 
       - name: Commit and push bump branch
         id: push
