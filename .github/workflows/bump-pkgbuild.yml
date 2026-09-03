@@ -210,7 +210,7 @@ jobs:
             aur_parent=$(git rev-parse FETCH_HEAD)
           fi
 
-          tmp_index="$(mktemp)"
+          tmp_index="$(mktemp -u)"
           GIT_INDEX_FILE="$tmp_index" git add -- .SRCINFO PKGBUILD .gitignore README.md
           tree=$(GIT_INDEX_FILE="$tmp_index" git write-tree)
           rm -f "$tmp_index"
