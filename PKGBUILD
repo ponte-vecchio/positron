@@ -3,7 +3,7 @@
 pkgname=positron-ide-devel-bin
 _pkgname=positron-ide
 pkgver=2026.09.0.256
-pkgver_url=2026.08.2-4
+pkgver_url=2026.09.0-256
 pkgrel=1
 pkgdesc="A next-generation data science IDE. Positron is an extensible, polyglot tool for writing code and exploring data in Python, R, and other languages."
 arch=('x86_64' 'aarch64')
