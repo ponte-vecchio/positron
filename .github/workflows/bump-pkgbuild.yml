@@ -158,7 +158,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7
         with:
-          ref: ${{ needs.bump-pkgbuild.outputs.branch }}
+          ref: ${{ env.BASE_BRANCH }}
 
       - name: Open and merge PR
         env:
@@ -198,6 +198,8 @@ jobs:
           EOF
           chmod 600 ~/.ssh/known_hosts
           export GIT_SSH_COMMAND="ssh -i ~/.ssh/aur_ed25519 -o IdentitiesOnly=yes"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
 
           aur_url="ssh://aur@aur.archlinux.org/positron-ide-devel-bin.git"
 
