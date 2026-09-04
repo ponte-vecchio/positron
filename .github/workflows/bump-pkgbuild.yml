@@ -167,11 +167,25 @@ jobs:
           NEW_PKGVER: ${{ needs.check-release.outputs.new_pkgver }}
         run: |
           set -euo pipefail
+
+          already_merged=$(gh pr list --head "${BRANCH}" --state merged --json number --jq '.[0].number // empty')
+          if [ -n "${already_merged}" ]; then
+            echo "PR #${already_merged} for ${BRANCH} is already merged, nothing to do."
+            exit 0
+          fi
+
           gh pr create \
             --title "bump version to ${NEW_PKGVER}" \
             --body "Automated bump to Positron ${NEW_PKGVER}. Verified developer-provided sha256 checksums and a \`makepkg\` package() dry run for both x86_64 and aarch64." \
             --base "${BASE_BRANCH}" \
             --head "${BRANCH}"
+
+          for _ in $(seq 1 10); do
+            mergeable=$(gh pr view "${BRANCH}" --json mergeable --jq .mergeable)
+            [ "${mergeable}" != "UNKNOWN" ] && break
+            sleep 3
+          done
+
           gh pr merge "${BRANCH}" --squash --delete-branch --admin
 
   publish-aur:
